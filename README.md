@@ -24,10 +24,10 @@
 
 개발 언어는 당분간 Python, C/C++만 허용합니다. 장치간 메세지 교환방식에 대하여 결정이 된다면 언어 제한이 풀릴 수 있습니다.
 
-+ 개인 브랜치 생성해서 작업하세요. 작업 후 Master에 Merge요청 하시면 됩니다.
+개인 브랜치 생성해서 작업하세요. 작업 후 Master에 Merge요청 하시면 됩니다.
 
-아두이노를 Visual Studio IDE이외에 이클립스로 사용하는 방법을 시간내서 문서화 작업할겁니다.
-+ 아두이노_이클립스연동 : [링크](http://playground.arduino.cc/Code/Eclipse)
+프로그램 소스는 데비안계열 리눅스에서 UAC 지원 웹캠 환경아래 python-opencv2와 python2.7로 작성하였습니다.
++ 이클립스를 통한 개발 방법은 문서 작성하고 있습니다.
 
 자료 공유는 Dropbox를 사용하고 있습니다. 단, 이 곳에는 소스코드가 있지 않습니다.
 + 작업 기록 자료실 : [링크](https://www.dropbox.com/sh/7vmnmwyq8xp75xb/AADxzAP9nBhgIPdVGKtEdNQ4a?dl=0)
