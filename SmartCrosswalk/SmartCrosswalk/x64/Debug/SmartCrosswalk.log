@@ -1,0 +1,7 @@
+﻿  cam.cpp
+c:\opencv\build\include\opencv2\core\mat.hpp(1965): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+  SmartCrosswalk.vcxproj -> C:\Users\lee10\documents\visual studio 2015\Projects\SmartCrosswalk\x64\Debug\SmartCrosswalk.exe
+  SmartCrosswalk.vcxproj -> C:\Users\lee10\documents\visual studio 2015\Projects\SmartCrosswalk\x64\Debug\SmartCrosswalk.pdb (Full PDB)
