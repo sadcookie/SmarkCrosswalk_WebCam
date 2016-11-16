@@ -81,13 +81,19 @@ int main()
 {
 	Rect track, track2,track3,track4,track5, track6, track7, track8, track9, track10;
 	Mat image, roi_1,roi_2,roi_3,hsv;
+	Mat result;
 	RotatedRect trackBox, trackBox2;
-	int choose = 1;
+	int choose = 1;//
+	int tracking_buffer[15] = { 0, };//멈춤을 판단하는 버퍼
 	int x = 0, y = 0, x1 = 0, y1 = 0, flag = 0, ll = 0;
 	Point2f point;
 	bool tracking = false;
 
-	VideoCapture cap(1);
+	result = imread("result.png");
+	cv::namedWindow("보행자 상태",CV_WINDOW_NORMAL);
+	cv::resizeWindow("보행자 상태", 400, 100);
+
+	VideoCapture cap(0);
 	cap.set(CAP_PROP_FRAME_WIDTH, 640);
 	cap.set(CAP_PROP_FRAME_HEIGHT, 320);
 	
@@ -153,6 +159,8 @@ int main()
 	case 2,3,4는 1번과 동일하게 작동하여 판단이 쉽게 불가
 	수정필요
 	*/
+
+	int buffer_count = 0;
 	for (;;) {
 		cap.read(image);
 		cvtColor(image, hsv, COLOR_BGR2HSV);
@@ -164,14 +172,14 @@ int main()
 		/*
 		roi 이미지 가져온다
 		*/
-		roi_1 = Backproj(hsv, calc_HSV_Hist("ROI.jpg"));
+		roi_1 = Backproj(hsv, calc_HSV_Hist("ROI_jyj.jpg"));
 		roi_2 = Backproj(hsv, calc_HSV_Hist("ROI2.jpg"));
 
 		switch (choose) {
 		case 1://1번 위치에서 값이 들어왔을 경우
 			if (tracking == true)
 			{
-				
+				/*수정 필요함 */
 				trackBox = CamShift(roi_1, track,
 					TermCriteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 1));
 
@@ -193,33 +201,57 @@ int main()
 						y1 = trackBox.boundingRect().y;
 						flag = 1;
 					}
+					//필요 없는 부분 곧 수동이 아닌 코드 내부에서 자동적으로 돌아가야함
 					if (ll == 1) {
-						cv::putText(image, "Warning", Point(50, 100), FONT_HERSHEY_COMPLEX, 2, Scalar(0, 0, 255), 3);
+						result = imread("result.png");
+						cv::putText(result, "Walking..", Point(50, 300), FONT_HERSHEY_COMPLEX, 10, Scalar(0, 0, 255), 7);
 					}
-
-					if (-500 > x1 - trackBox.boundingRect().x || x1 - trackBox.boundingRect().x > 500) { //보행자가 다 건넜는지 판단 지표
+					else if (ll == 0) {
+						result = imread("result.png");
+						cv::putText(result, "Stop..", Point(50, 300), FONT_HERSHEY_COMPLEX, 10, Scalar(0, 0, 255), 7);
+					}
+					
+					if (-600 > x1 - trackBox.boundingRect().x || x1 - trackBox.boundingRect().x > 650) { //보행자가 다 건넜는지 판단 지표
 						cout << "보행자가 길을 다 건넜습니다~~~~~~~~~~~`" << endl;
 						flag = 0;
 						tracking = false;
 					}
+					tracking_buffer[buffer_count] = trackBox.boundingRect().x;
 				}
+
 				else {//트랙킹이 되지 않는 경우
 					cout << "ROI1의 객체가 사라졌습니다!! 재탐색을 시작합니다" << endl;
 					cv::putText(image, "ROI 1 is gone.", Point(10, 80), FONT_HERSHEY_COMPLEX, 1, Scalar(0, 0, 255), 3);
+					//ellipse(image, trackBox, Scalar(0, 255, 0), 5, LINE_AA);//그린, 보행자가 사라져도 원형을 그리면서 
 
 					if (-50 > x - trackBox.boundingRect().x || x - trackBox.boundingRect().x > 50) {//급격한 변화가 존재하는 경우 x좌표의 차이가 50이상 나는 경우 이전 단계로 컴백
 						cout << "보행자검색중 ..." << endl;
-						if (track.x = 0 || track.y == 0) {
-							track.x = x;
-							track.y = y;
-						}
-						else {
-							track.x = x;
-							track.y = y;
-						}
-					}
+						for (int i = 0; i < 10; i++) {
+							if (track.x = 0 || track.y == 0) {
+								track.x = x;
+								track.y = y;
+							}
+							else {
+								track.x = x;
+								track.y = y;
+							}
+						}//for
+					}//보행자 검색 if 문
 				}
-				/*
+
+				buffer_count += 1;
+
+				if (buffer_count == 9) { //버퍼 카운터가 9이면
+					if(-5>tracking_buffer[0] - tracking_buffer[9] || tracking_buffer[0] - tracking_buffer[9] < 5);//첫번째와 마지막 번지의 위치 차이가 없을시
+					//cv::putText(result, "Stop", Point(350, 300), FONT_HERSHEY_COMPLEX, 10, Scalar(0, 0, 255), 6);//보행자가 멈춤을 확인시켜 준다.	
+
+					for (int i = 0; i < 10; i++) {//버퍼 0에서 9까지 초기화 시킴
+						tracking_buffer[i] = 0;//버퍼 0으로 초기화
+					}
+					buffer_count = 0;//버퍼 카운터 초기화
+
+				}
+				/* 객체 2번 추적
 				if (track2.width < 35 || track2.width >100) {
 					cout << "ROI2의 객체가 사라졌습니다!! 재탐색을 시작합니다" << endl;
 					cv::putText(image, "ROI 2 is gone.", Point(10, 100), FONT_HERSHEY_COMPLEX, 1, Scalar(0, 0, 255), 3);
@@ -424,7 +456,7 @@ int main()
 
 		/*
 		p : 일시정지
-		s : 재시작
+		s : 재시작& 시작 버튼
 		r : 경고문구 뛰어줌(삭제예정, 자동으로 되게 할 예정)
 		t : 경고문구 지움(삭제예정, 자동으로 되게 할 예정)
 		*/
@@ -449,6 +481,7 @@ int main()
 		roi이미지 보여주고
 		결과 이미지 보여준다.
 		*/
+		cv::imshow("보행자 상태", result);
 		cv::imshow("roi_1", roi_1);
 		cv::imshow("roi_2", roi_2);
 		cv::imshow("result", image);
